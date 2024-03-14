@@ -12,7 +12,7 @@ void PROCESS_INIT(int active) {
 	int y, activeA;
 	string process_select, term_logo;
 	term_logo = "HackRoids~>";
-	cout << "GuestAUser 2020*GNU LICENSE\n";
+	cout << "g4st 2018*GNU LICENSE\n";
 	cout << "exploding servers since 10 years old\n";
 	cout << R"(
 __          __  _                          
@@ -61,7 +61,7 @@ __          __  _
 
 int main() {
 	string start;
-	cout << "HACKERSPLOIT TOOL 2020\n";
+	cout << "HACKERSPLOIT TOOL 2018\n";
 	cout << "made by DAVI CHAVES AZEVEDO\n";
 	cout << "start program? y/n\n";
 	cin >> start;

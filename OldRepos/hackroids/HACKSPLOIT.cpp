@@ -62,7 +62,7 @@ __          __  _
 int main() {
 	string start;
 	cout << "HACKERSPLOIT TOOL 2018\n";
-	cout << "made by DAVI CHAVES AZEVEDO\n";
+	cout << "made by g4st(Lk10)\n";
 	cout << "start program? y/n\n";
 	cin >> start;
 	if (start == "y" || start == "Y") {

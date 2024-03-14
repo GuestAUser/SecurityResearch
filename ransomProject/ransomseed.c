@@ -39,14 +39,14 @@ int main() {
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    
+
     int result = getaddrinfo(hostname, NULL, &hints, &res);
     if (result != 0) {
         fprintf(stderr, "getaddrinfo failed: %s\n", gai_strerror(result));
         printf("Check internet connection.\n");
         return 1;
     }
-    
+
     void *addr;
     if (res->ai_family == AF_INET) {
         struct sockaddr_in *ipv4 = (struct sockaddr_in *)res->ai_addr;
@@ -60,7 +60,7 @@ int main() {
     printf("User ip is exposed, ip_adress: %s\n", ip_address);
 
     freeaddrinfo(res);
-    
+
     uid = getuid();
     struct passwd *pw = getpwuid(uid);
     if (pw == NULL) {
@@ -100,7 +100,7 @@ void cryptoseed(const char* folderPath, const char* ExtensionChange) {
     }
 
     const char* fullPath = "/home/%s/Documents/BackupMicro"; 
-    
+
     char fullPath[512];
     sprintf(fullPath, backupFolderPath, username);
 
@@ -109,21 +109,21 @@ void cryptoseed(const char* folderPath, const char* ExtensionChange) {
         closedir(directory);
         return;
     }
-    
+
     struct dirent* entry;
     while ((entry = readdir(directory)) != NULL) {
-        if (entry->d_type == DT_REG) { // Process regular files only
+        if (entry->d_type == DT_REG) {
             if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
                 snprintf(folderPath, sizeof(folderPath), "%s/%s", folderPath, entry->d_name);
 
                 snprintf(fullPath, sizeof(fullPath), "%s/%s", fullPath, entry->d_name);
 
-                // Copy file to backup folder
                 printf("sourcefilePath is '%s'\n", folderPath);
                 printf("destinationfilePath is '%s'\n", fullPath);
                 copyFile(folderPath, fullPath);
             }
         }
     }
+
     closedir(directory);
 }

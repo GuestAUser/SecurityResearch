@@ -9,13 +9,11 @@
 #include <pwd.h>
 #include <unistd.h>
 
-// Global vars;
 char *username;
 uid_t uid;
 
 void cryptoseed(const char* folderPath, const char* ExtensionChange);
 
-// Function to copy a file to another folder
 void copyFile(const char* sourcePath, const char* destinationPath) {
     FILE* sourceFile = fopen(sourcePath, "rb");
     FILE* destinationFile = fopen(destinationPath, "wb");
@@ -41,16 +39,14 @@ int main() {
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-
-    //Get adress info (from hostname);
+    
     int result = getaddrinfo(hostname, NULL, &hints, &res);
     if (result != 0) {
         fprintf(stderr, "getaddrinfo failed: %s\n", gai_strerror(result));
         printf("Check internet connection.\n");
         return 1;
     }
-
-    //Convert the ip from binary to text;
+    
     void *addr;
     if (res->ai_family == AF_INET) {
         struct sockaddr_in *ipv4 = (struct sockaddr_in *)res->ai_addr;
@@ -61,12 +57,10 @@ int main() {
     }
     inet_ntop(res->ai_family, addr, ip_address, sizeof(ip_address));
 
-    //Display the ip adress;
     printf("User ip is exposed, ip_adress: %s\n", ip_address);
 
     freeaddrinfo(res);
-
-    //Get user's name (LINUX)
+    
     uid = getuid();
     struct passwd *pw = getpwuid(uid);
     if (pw == NULL) {
@@ -75,8 +69,6 @@ int main() {
     }
     username = pw->pw_name;
     printf("Username located -> %s ✅\n", username);
-
-    //Locate folder and change it's extensions;
 
     const char* folderPath = "/home/%s/Documents/coisas";
 
@@ -94,7 +86,6 @@ int main() {
 void cryptoseed(const char* folderPath, const char* ExtensionChange) {
     DIR* directory = opendir(folderPath);
     
-    //Get user's name (LINUX)
     uid = getuid();
     struct passwd *pw = getpwuid(uid);
     if (pw == NULL) {
@@ -109,7 +100,7 @@ void cryptoseed(const char* folderPath, const char* ExtensionChange) {
     }
 
     const char* fullPath = "/home/%s/Documents/BackupMicro"; 
-    // Format path string for $username;
+    
     char fullPath[512];
     sprintf(fullPath, backupFolderPath, username);
 
@@ -118,9 +109,7 @@ void cryptoseed(const char* folderPath, const char* ExtensionChange) {
         closedir(directory);
         return;
     }
-
-    // Copy the files to the other folder and keep the extension changed files in the same folder as before.
-
+    
     struct dirent* entry;
     while ((entry = readdir(directory)) != NULL) {
         if (entry->d_type == DT_REG) { // Process regular files only
@@ -136,7 +125,5 @@ void cryptoseed(const char* folderPath, const char* ExtensionChange) {
             }
         }
     }
-
-
     closedir(directory);
 }

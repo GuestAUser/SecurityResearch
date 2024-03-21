@@ -1,6 +1,3 @@
-# SecurityResearch
-Security Related Projects
-
 <h1 align="center">Hello! 👋 I'm Lk10(GuestAUser)</h1>
 
 <h5 align="center">I'm a Security Analyst and Ethical Hacker, having made a few backend jobs and Linux kernel drivers using mostly low level languages such as c, c++ and rust.</h5><br>
@@ -41,9 +38,9 @@ Security Related Projects
 
 <p align='left'><img src="https://raw.githubusercontent.com/ryantusi/Github_Profile_README_Generator/main/src/images/icons/Other/linux.svg" width='40' height='40' title='linux'/></p>
 
-<br><hr><br>
+<br><hr></br>
 
-<img width="100%" align="center" src="https://github-profile-trophy.vercel.app/?username=Lk10" />
+![Experience Trophy](https://github-profile-trophy.vercel.app/?username=Lk10&theme=onedark&column=3&margin-w=5&margin-h=10&no-bg=true&no-frame=true&timezone=Asia%2FKolkata)
 
 <h2 align="left">Connect with Me</h2>
 

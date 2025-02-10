@@ -1,4 +1,4 @@
-## Usage
+## Usage 1.75.2
 
 ```ruby
 Usage: [ROOT] $0 [OPTIONS]

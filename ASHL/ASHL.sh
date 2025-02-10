@@ -1,7 +1,29 @@
 #!/usr/bin/env bash
 # All-in-one security & health checker for Linux - ASHL
 # GuestAUser @ GitHub
-# (1.75.0)
+# (1.75.2)
+
+# ---------------------------------------------------------------------------
+# Version 1.75.2 — Changelog & Enhancements
+# ---------------------------------------------------------------------------
+# 1) Code Readability:
+#    - Unified log messages (info, warn, error) and standardized spacing.
+#
+# 2) Pause-Step Logic:
+#    - Improved "pause_step()" flow.
+#
+# 3) Dependency Checks:
+#    - Clearer messages distinguishing missing vs. installed-but-not-in-PATH binaries.
+#    - Automatic or interactive install maintained.
+#
+# 4) Update Checks:
+#    - Explicitly lists upgradable packages (where possible).
+#    - Handles non-critical failures without exiting.
+#
+# 5) Overall:
+#    - Maintenance and slight improvement.
+# ---------------------------------------------------------------------------
+
 
 set -euo pipefail
 

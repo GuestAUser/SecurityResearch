@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# All-in-one security & health checker for Linux. - < ASHL >
+# All-in-one security & health checker for Linux - ASHL
 # GuestAUser @ GitHub
+# (1.75.0)
 
 set -euo pipefail
 
@@ -10,6 +11,7 @@ set -euo pipefail
 
 VERBOSE=0
 AUTO_INSTALL=0
+STEP_PROMPT=0
 
 SKIP_ROOTKIT=0
 SKIP_CLAMAV=0
@@ -30,12 +32,18 @@ PKG_UPDATE_CMD=""
 PKG_CHECK_CMD=""
 
 ##############################################################################
-# LOGGING *******************************************************************|
+# LOGGING & HELPER FUNCTIONS ************************************************|
 ##############################################################################
 
 info()  { [ "$VERBOSE" -eq 1 ] && echo -e "${GREEN}[INFO]${RESET}  $*"; }
 warn()  { echo -e "${YELLOW}[WARN]${RESET}  $*"; }
 error() { echo -e "${RED}[ERROR]${RESET} $*" >&2; }
+
+pause_step() {
+  if [ "$STEP_PROMPT" -eq 1 ]; then
+    read -r -p "Press Enter to continue..."
+  fi
+}
 
 ##############################################################################
 # ASCII BANNER **************************************************************|
@@ -62,19 +70,19 @@ EOF
 }
 
 ##############################################################################
-# USAGE & ARG PARSING *******************************************************|
+# USAGE & ARGUMENT PARSING **************************************************|
 ##############################################################################
 
 usage() {
   cat <<EOF
-Usage: $0 [OPTIONS]
+Usage: [ROOT] $0 [OPTIONS]
 
 Options:
   -v, --verbose       Show detailed/verbose output for each step.
   -y, --yes           Auto-install missing dependencies (no interactive prompt).
   -h, --help          Show this help message.
-
-  --skip-rootkit      Skip rootkit checks (rkhunter, chkrootkit).
+  --step-pause        Pause after each major step (press Enter to continue).
+  --skip-rootkit      Skip rootkit checks (rkhunter).
   --skip-clamav       Skip ClamAV updates & scanning.
   --skip-lynis        Skip Lynis security audit.
   --skip-smart        Skip S.M.A.R.T. disk checks.
@@ -85,6 +93,7 @@ Options:
 Examples:
   sudo $0 -v
   sudo $0 --skip-rootkit --skip-updates
+  sudo $0 --step-pause (will pause after each step)
 
 EOF
   exit 0
@@ -97,6 +106,7 @@ while [[ $# -gt 0 ]]; do
     -v|--verbose)     VERBOSE=1 ;;
     -y|--yes)         AUTO_INSTALL=1 ;;
     -h|--help)        usage ;;
+    --step-pause)     STEP_PROMPT=1 ;;
     --skip-rootkit)   SKIP_ROOTKIT=1 ;;
     --skip-clamav)    SKIP_CLAMAV=1 ;;
     --skip-lynis)     SKIP_LYNIS=1 ;;
@@ -113,7 +123,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 ##############################################################################
-# DETECT PACKAGE MANAGER (apt, pacman, dnf, zypper) *************************|
+# DETECT PACKAGE MANAGER ****************************************************|
 ##############################################################################
 
 detect_package_manager() {
@@ -146,20 +156,20 @@ detect_package_manager
 ##############################################################################
 
 install_if_missing() {
-  local pkg="$1"
-  local bin="$2"
+  local pkg="$1" bin="$2"
 
   if command -v "$bin" &>/dev/null; then
-    info "'$bin' found; skipping install of '$pkg'."
+    info "'$bin' is already available; skipping install of '$pkg'."
     return
   fi
 
   if $PKG_CHECK_CMD "$pkg" &>/dev/null; then
-    info "'$pkg' installed, but '$bin' not in PATH. Check PATH or reinstall."
+    info "'$pkg' is installed, but '$bin' not in PATH. Check PATH or reinstall."
     return
   fi
 
   warn "Missing dependency: $pkg ($bin)."
+
   if [ "$AUTO_INSTALL" -eq 1 ]; then
     info "Auto-installing $pkg..."
     $PKG_UPDATE_CMD || warn "Update command failed (not critical)."
@@ -167,17 +177,16 @@ install_if_missing() {
   else
     read -r -p "Install $pkg now? (Y/n): " answer
     if [[ "$answer" =~ ^([yY]|[yY][eE][sS]|'')$ ]]; then
-      $PKG_UPDATE_CMD
+      $PKG_UPDATE_CMD || warn "Update command failed (not critical)."
       $PKG_INSTALL_CMD "$pkg" || warn "Could not install $pkg."
     else
-      warn "Skipping $pkg; some features won't work."
+      warn "Skipping $pkg; some features may not work."
     fi
   fi
 }
 
 check_dependencies() {
   install_if_missing rkhunter      rkhunter
-  # install_if_missing chkrootkit    chkrootkit [DEPRECATED]
   install_if_missing clamav        clamscan
   install_if_missing lynis         lynis
   install_if_missing smartmontools smartctl
@@ -192,9 +201,13 @@ system_health() {
   echo "Uptime:       $(uptime -p 2>/dev/null || true)"
   echo -e "\nDisk Usage:"
   df -h || true
+
   echo -e "\nMemory Usage:"
   free -h || true
-  echo -e "\nLoad Average: $(uptime 2>/dev/null | awk -F'load average:' '{print $2}' || true)"
+
+  echo -e "\nLoad Average:"
+  uptime 2>/dev/null | awk -F'load average:' '{print $2}' || true
+
   echo -e "\nOpen Ports:"
   if command -v ss &>/dev/null; then
     ss -tuln || true
@@ -209,7 +222,7 @@ update_check() {
   if command -v apt-get &>/dev/null; then
     apt-get update || true
     local upg
-    upg=$(apt-get --just-print upgrade | grep "^Inst " || true)
+    upg="$(apt-get --just-print upgrade 2>/dev/null | grep '^Inst ' || true)"
     if [ -n "$upg" ]; then
       echo "Updates available:"
       echo "$upg"
@@ -244,7 +257,7 @@ firewall_check() {
   elif command -v nft &>/dev/null; then
     nft list ruleset || true
   else
-    warn "No known firewall (ufw/iptables/nft) found. Skipping."
+    warn "No known firewall (ufw/iptables/nft) found; skipping."
   fi
   echo
 }
@@ -255,21 +268,13 @@ rootkit_checks() {
     rkhunter --update --nocolors --sk --cronjob || warn "rkhunter update warnings."
     rkhunter --check  --nocolors --sk --cronjob || warn "rkhunter check warnings."
   else
-    warn "rkhunter not found; skipping."
+    warn "rkhunter not found; skipping rootkit checks."
   fi
-  #========== [DEPRECATED] ==========
-  #info "Running chkrootkit..."
-  #if command -v chkrootkit &>/dev/null; then
-  #  chkrootkit || warn "chkrootkit warnings."
-  #else
-  #  warn "chkrootkit not found; skipping."
-  #fi
-  #========== [DEPRECATED] ==========
   echo
 }
 
 clamav_scan() {
-  echo -e "${RED}WARNING: A full ClamAV scan can be very time-consuming on large directories!${RESET}"
+  echo -e "${RED}WARNING: A full ClamAV scan can be time-consuming on large directories!${RESET}"
   read -r -p "Do you want to continue with the ClamAV scan? (Y/n): " resp
   if [[ "$resp" =~ ^([nN]|[nN][oO])$ ]]; then
     warn "Skipping ClamAV scan by user request."
@@ -313,9 +318,10 @@ lynis_audit() {
 smart_check() {
   info "Running S.M.A.R.T. disk checks..."
   if ! command -v smartctl &>/dev/null; then
-    warn "smartctl not found; skipping."
+    warn "smartctl not found; skipping disk checks."
     return
   fi
+
   mapfile -t disks < <(lsblk -dno NAME 2>/dev/null || true)
   for d in "${disks[@]}"; do
     [ -b "/dev/$d" ] || continue
@@ -332,13 +338,41 @@ smart_check() {
 
 display_ascii_art
 check_dependencies
+pause_step
 
-[ "$SKIP_SYSHEALTH" -eq 0 ] && system_health
-[ "$SKIP_UPDATE"    -eq 0 ] && update_check
-[ "$SKIP_FIREWALL"  -eq 0 ] && firewall_check
-[ "$SKIP_ROOTKIT"   -eq 0 ] && rootkit_checks
-[ "$SKIP_CLAMAV"    -eq 0 ] && clamav_scan
-[ "$SKIP_LYNIS"     -eq 0 ] && lynis_audit
-[ "$SKIP_SMART"     -eq 0 ] && smart_check
+if [ "$SKIP_SYSHEALTH" -eq 0 ]; then
+  system_health
+  pause_step
+fi
+
+if [ "$SKIP_UPDATE" -eq 0 ]; then
+  update_check
+  pause_step
+fi
+
+if [ "$SKIP_FIREWALL" -eq 0 ]; then
+  firewall_check
+  pause_step
+fi
+
+if [ "$SKIP_ROOTKIT" -eq 0 ]; then
+  rootkit_checks
+  pause_step
+fi
+
+if [ "$SKIP_CLAMAV" -eq 0 ]; then
+  clamav_scan
+  pause_step
+fi
+
+if [ "$SKIP_LYNIS" -eq 0 ]; then
+  lynis_audit
+  pause_step
+fi
+
+if [ "$SKIP_SMART" -eq 0 ]; then
+  smart_check
+  pause_step
+fi
 
 echo -e "${GREEN}All requested checks completed.${RESET}"

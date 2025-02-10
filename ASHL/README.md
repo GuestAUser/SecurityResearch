@@ -133,7 +133,7 @@ sudo ./ASHL.sh [OPTIONS]
 | `--skip-firewall` | Skip firewall status checks (`ufw` / `iptables` / `nft`).                 |
 | `--skip-updates`  | Skip system package update checks.                                        |
 | `--skip-syshealth`| Skip general system health overview.                                      |
-| `--step-pause`    | will pause after each step                                                |
+| `--step-pause`    | Will pause after each step                                                |
 
 ---
 

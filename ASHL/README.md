@@ -1,3 +1,5 @@
+## Usage
+
 ```ruby
 Usage: [Root] ./SecurityCheckup.sh [OPTIONS]
 

@@ -20,7 +20,7 @@ Options:
 Examples:
   sudo $0 -v
   sudo $0 --skip-rootkit --skip-updates
-  sudo $0 --step-pause  (will pause after each step)
+  sudo $0 --step-pause   (will pause after each step)
 ```
 
 # ASHL — All-in-One Linux Security & Health Checker

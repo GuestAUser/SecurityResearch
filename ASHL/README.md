@@ -1,14 +1,15 @@
 ## Usage
 
 ```ruby
-Usage: [Root] ./ASHL.sh [OPTIONS]
+Usage: [ROOT] $0 [OPTIONS]
 
 Options:
   -v, --verbose       Show detailed/verbose output for each step.
   -y, --yes           Auto-install missing dependencies (no interactive prompt).
   -h, --help          Show this help message.
 
-  --skip-rootkit      Skip rootkit checks (rkhunter, chkrootkit).
+  --step-pause        Pause after each major step (press Enter to continue).
+  --skip-rootkit      Skip rootkit checks (rkhunter).
   --skip-clamav       Skip ClamAV updates & scanning.
   --skip-lynis        Skip Lynis security audit.
   --skip-smart        Skip S.M.A.R.T. disk checks.
@@ -17,8 +18,9 @@ Options:
   --skip-syshealth    Skip system health overview.
 
 Examples:
-  sudo ./SecurityCheckup.sh -v
-  sudo ./SecurityCheckup.sh --skip-rootkit --skip-updates
+  sudo $0 -v
+  sudo $0 --skip-rootkit --skip-updates
+  sudo $0 --step-pause  (will pause after each step)
 ```
 
 # ASHL — All-in-One Linux Security & Health Checker

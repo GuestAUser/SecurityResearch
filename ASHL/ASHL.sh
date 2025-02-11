@@ -82,7 +82,7 @@ display_ascii_art() {
    / _|       |_ \
   (_/ |       | \_)
       \       /
-     __\_>-<_/__   Linux S&H Tool - Davi Chaves Azevedo
+     __\_>-<_/__   Linux S&H Tool - GuestAUser
      ~;/     \;~
 
 EOF

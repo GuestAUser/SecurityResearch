@@ -25,7 +25,7 @@ Examples:
 
 # ASHL — All-in-One Linux Security & Health Checker
 
-> **Version:** 1.0  
+> **Version:** 1.75.2 
 > **Author:** [GuestAUser @ GitHub](https://github.com/GuestAUser)  
 > **License:** MIT  
 

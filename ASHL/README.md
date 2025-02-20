@@ -1,7 +1,7 @@
 ## Usage 1.75.2
 
 ```ruby
-Usage: [ROOT] $0 [OPTIONS]
+Usage: [ROOT] ./ASHL.sh [OPTIONS]
 
 Options:
   -v, --verbose       Show detailed/verbose output for each step.
@@ -18,9 +18,9 @@ Options:
   --skip-syshealth    Skip system health overview.
 
 Examples:
-  sudo $0 -v
-  sudo $0 --skip-rootkit --skip-updates
-  sudo $0 --step-pause   (will pause after each step)
+  sudo ./ASHL.sh -v
+  sudo ./ASHL.sh --skip-rootkit --skip-updates
+  sudo ./ASHL.sh --step-pause   (will pause after each step)
 ```
 
 # ASHL — All-in-One Linux Security & Health Checker
